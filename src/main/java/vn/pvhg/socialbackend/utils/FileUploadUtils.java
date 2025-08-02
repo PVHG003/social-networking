@@ -1,7 +1,6 @@
 package vn.pvhg.socialbackend.utils;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
@@ -24,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class FileUploadUtils {
@@ -75,7 +73,6 @@ public class FileUploadUtils {
                 String storedFile = storeFile(relativePath, file);
                 storedFilePaths.add(storedFile);
             } catch (IOException e) {
-                log.error("Error while storing file {}", file.getOriginalFilename(), e);
                 throw new FileStorageException("Failed to store file " + file.getOriginalFilename(), e);
             }
         }
@@ -135,8 +132,6 @@ public class FileUploadUtils {
 
     public MediaType getMediaType(String item) {
         Path relativePath = Paths.get(BASE_STORAGE_PATH).resolve(item).normalize();
-//        String contentType = getMimeType(item);
-//        return determineMediaType(contentType);
         try {
             String contentType = Files.probeContentType(relativePath);
             if (contentType == null) {
@@ -199,5 +194,14 @@ public class FileUploadUtils {
             throw new RuntimeException("Could not read file: " + relativePath, e);
         }
 
+    }
+
+    public void deleteDirectory(String storagePath) throws FileNotFoundException {
+        try {
+            Path absolutePath = Paths.get(BASE_STORAGE_PATH).resolve(storagePath).getParent().normalize();
+            Files.deleteIfExists(absolutePath);
+        } catch (IOException e) {
+            throw new FileNotFoundException("Could not read file: " + storagePath);
+        }
     }
 }

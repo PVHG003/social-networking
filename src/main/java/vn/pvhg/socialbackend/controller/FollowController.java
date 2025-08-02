@@ -47,9 +47,9 @@ public class FollowController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{followId}")
-    public ResponseEntity<Object> unfollowUser(@PathVariable UUID followId) {
-        followService.unfollowUser(followId);
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Object> unfollowUser(@PathVariable UUID userId) {
+        followService.unfollowUser(userId);
         return ResponseEntity.ok("User has been unfollowed.");
     }
 }

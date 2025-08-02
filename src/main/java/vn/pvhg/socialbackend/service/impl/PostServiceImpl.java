@@ -121,6 +121,7 @@ public class PostServiceImpl implements PostService {
         List<PostMedia> postMedia = post.getPostMedias();
         for (PostMedia media : postMedia) {
             try {
+                fileUploadUtils.deleteDirectory(media.getStoragePath());
                 fileUploadUtils.deleteFile(media.getStoragePath());
             } catch (FileNotFoundException e) {
                 log.error("Failed to delete media file: {}", media.getStoragePath(), e);

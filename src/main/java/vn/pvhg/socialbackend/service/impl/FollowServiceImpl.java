@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -73,8 +74,21 @@ public class FollowServiceImpl implements FollowService {
     }
 
     @Override
-    public void unfollowUser(UUID followId) {
-        followRepository.deleteById(followId);
+    public void unfollowUser(UUID userId) {
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
+        User currentUser = userDetails.getUser();
+        User userToUnfollow = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+
+        Follow follow = followRepository.findByFollowingAndFollowed(currentUser, userToUnfollow)
+                .orElseThrow(() -> new EntityNotFoundException("Follow relationship not found"));
+
+        if (!follow.getFollowing().getId().equals(currentUser.getId())) {
+            throw new AuthorizationDeniedException("You can only unfollow users you are following");
+        }
+
+        followRepository.deleteById(follow.getId());
     }
 
     @Override
