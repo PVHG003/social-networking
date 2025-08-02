@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/social_db
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+jwt:
+  key:
+    private-key: classpath:keys/private.pem
+    public-key: classpath:keys/public.pem
+  expiration: 86400000 # in millis
+
+file:
+  image-upload: uploads/images/
+  video-upload: uploads/videos/
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    web: TRACE
+    org.springframework.data.neo4j: DEBUG
