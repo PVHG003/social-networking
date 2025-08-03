@@ -1,5 +1,6 @@
 package vn.pvhg.socialbackend.service.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +18,7 @@ import vn.pvhg.socialbackend.security.UserDetailsServiceImpl;
 import vn.pvhg.socialbackend.service.ProfileService;
 import vn.pvhg.socialbackend.utils.FileUploadUtils;
 
+import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -39,6 +41,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     }
 
+    @Transactional
     @Override
     public ProfileResponse updateProfile(ProfileRequest requestForm) {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -62,6 +65,7 @@ public class ProfileServiceImpl implements ProfileService {
         return profileMapper.toResponse(userProfile);
     }
 
+    @Transactional
     @Override
     public ProfileResponse uploadProfileImage(MultipartFile file) {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -69,6 +73,11 @@ public class ProfileServiceImpl implements ProfileService {
         User user = userDetails.getUser();
 
         Path userProfilePath = Path.of("users", user.getId().toString(), "profile");
+        try {
+            fileUploadUtils.deleteFile(user.getProfile().getProfileImage());
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         List<String> uploadedPath = fileUploadUtils.storeFiles(userProfilePath, List.of(file));
         UserProfile userProfile = user.getProfile();
         userProfile.setProfileImage(uploadedPath.getFirst());
