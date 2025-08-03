@@ -6,8 +6,8 @@ import java.util.UUID;
 
 public record PostResponse(
         UUID id,
-        String userProfileDisplayName,
-        String userEmail,
+        String username,
+        String profilePicture,
         String content,
         List<PostMediaResponse> postMedias,
 //        List<String> postMedias,

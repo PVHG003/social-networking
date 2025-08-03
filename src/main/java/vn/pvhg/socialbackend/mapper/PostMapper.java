@@ -14,8 +14,8 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface PostMapper {
 
-    @Mapping(source = "user.email", target = "userEmail")
-    @Mapping(source = "user.profile.displayName", target = "userProfileDisplayName")
+    @Mapping(source = "user.profile.displayName", target = "username")
+    @Mapping(source = "user.profile.profileImage", target = "profilePicture")
 //    @Mapping(source = "postMedias", target = "postMedias", qualifiedByName = "postMediasToStringList")
     PostResponse toResponse(Post post);
 

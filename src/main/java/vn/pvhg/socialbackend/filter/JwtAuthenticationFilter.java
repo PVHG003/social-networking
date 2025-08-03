@@ -18,8 +18,10 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+import vn.pvhg.socialbackend.repository.RevokedTokenRepository;
 import vn.pvhg.socialbackend.security.UserDetailsImpl;
 import vn.pvhg.socialbackend.security.UserDetailsServiceImpl;
+import vn.pvhg.socialbackend.service.TokenRevocationService;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -32,11 +34,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final HandlerExceptionResolver handlerExceptionResolver;
     private final JwtDecoder jwtDecoder;
     private final UserDetailsServiceImpl userDetailsServiceImpl;
+    private final RevokedTokenRepository revokedTokenRepository;
+    private final TokenRevocationService tokenRevocationService;
 
-    public JwtAuthenticationFilter(HandlerExceptionResolver handlerExceptionResolver, JwtDecoder jwtDecoder, UserDetailsServiceImpl userDetailsServiceImpl) {
+    public JwtAuthenticationFilter(HandlerExceptionResolver handlerExceptionResolver, JwtDecoder jwtDecoder, UserDetailsServiceImpl userDetailsServiceImpl, RevokedTokenRepository revokedTokenRepository, TokenRevocationService tokenRevocationService) {
         this.handlerExceptionResolver = handlerExceptionResolver;
         this.jwtDecoder = jwtDecoder;
         this.userDetailsServiceImpl = userDetailsServiceImpl;
+        this.revokedTokenRepository = revokedTokenRepository;
+        this.tokenRevocationService = tokenRevocationService;
     }
 
     @Override
@@ -52,15 +58,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             String token = header.substring("Bearer ".length());
             Jwt jwt = jwtDecoder.decode(token);
-
             if (jwt == null) {
                 throw new BadCredentialsException("Invalid token");
             }
-
             Instant expiresAt = jwt.getExpiresAt();
-
             if (expiresAt != null && expiresAt.isBefore(Instant.now())) {
                 throw new CredentialsExpiredException("Token has expired");
+            }
+
+            if (tokenRevocationService.isTokenRevoked(token)) {
+                throw new BadCredentialsException("Invalid token");
             }
 
             UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());

@@ -10,4 +10,6 @@ public interface AuthenticationService {
     void verify(String email);
 
     LoginResponse login(LoginRequest requestForm);
+
+    void logout();
 }

@@ -45,4 +45,11 @@ public class AuthenticationController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Object> logout() {
+        authenticationService.logout();
+        ApiResponse<Void> response = new ApiResponse<>(HttpStatus.OK, true, "User logged out", null);
+        return ResponseEntity.ok(response);
+    }
+
 }

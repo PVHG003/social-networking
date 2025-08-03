@@ -4,15 +4,21 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.stereotype.Service;
 import vn.pvhg.socialbackend.dto.request.LoginRequest;
 import vn.pvhg.socialbackend.dto.request.RegisterRequest;
 import vn.pvhg.socialbackend.dto.response.LoginResponse;
 import vn.pvhg.socialbackend.exception.EmailAlreadyExistsException;
+import vn.pvhg.socialbackend.model.authentication.RevokedToken;
 import vn.pvhg.socialbackend.model.authentication.User;
+import vn.pvhg.socialbackend.repository.RevokedTokenRepository;
 import vn.pvhg.socialbackend.repository.UserRepository;
+import vn.pvhg.socialbackend.security.UserDetailsServiceImpl;
 import vn.pvhg.socialbackend.service.AuthenticationService;
 import vn.pvhg.socialbackend.utils.JwtUtils;
 
@@ -24,6 +30,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtEncoder jwtEncoder;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+    private final RevokedTokenRepository revokedTokenRepository;
+    private final JwtDecoder jwtDecoder;
+    private final UserDetailsServiceImpl userDetailsServiceImpl;
 
     @Override
     public void register(RegisterRequest requestForm) {
@@ -53,9 +62,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         ));
 
         String token = jwtUtils.generateToken(authentication);
-
         return new LoginResponse(
                 token
         );
+    }
+
+    @Override
+    public void logout() {
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        RevokedToken revokedToken = new RevokedToken();
+        revokedToken.setTokenId(jwt.getId());
+        revokedToken.setExpiryDate(jwt.getExpiresAt());
+        revokedTokenRepository.save(revokedToken);
     }
 }
