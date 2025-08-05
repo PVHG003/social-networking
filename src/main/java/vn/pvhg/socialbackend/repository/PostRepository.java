@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import vn.pvhg.socialbackend.model.authentication.User;
 import vn.pvhg.socialbackend.model.post.Post;
 
 import java.util.Optional;
@@ -35,4 +36,6 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
             """,
             countQuery = "select count(p) from Post p where p.user.id=:userId")
     Page<Post> findPostsWithMediasByUserId(@Param("userId") UUID userId, Pageable pageable);
+
+    boolean existsByIdAndUser(UUID postId, User user);
 }

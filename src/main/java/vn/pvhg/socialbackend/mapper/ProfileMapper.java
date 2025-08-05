@@ -8,6 +8,7 @@ import vn.pvhg.socialbackend.model.UserProfile;
 @Mapper(componentModel = "spring")
 public interface ProfileMapper {
 
+    @Mapping(target = "id", source = "user.id")
     @Mapping(target = "email", source = "user.email")
     ProfileResponse toResponse(UserProfile userProfile);
 }

@@ -10,9 +10,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface PostService {
-    PostResponse createPost(PostRequest requestForm);
-
-    PostResponse uploadMedias(UUID id, List<MultipartFile> files);
+    PostResponse createPost(PostRequest requestForm, List<MultipartFile> files);
 
     Page<PostResponse> getAllPosts(Pageable pageable);
 
@@ -21,4 +19,6 @@ public interface PostService {
     Page<PostResponse> getUserPosts(UUID userId, Pageable pageable);
 
     void deletePost(UUID id);
+
+    PostResponse updatePost(UUID postId, PostRequest req);
 }

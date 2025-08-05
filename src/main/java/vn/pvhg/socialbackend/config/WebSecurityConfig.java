@@ -3,7 +3,6 @@ package vn.pvhg.socialbackend.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -42,11 +41,10 @@ public class WebSecurityConfig {
     private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
-    @Order(1)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/api/**")
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -58,17 +56,6 @@ public class WebSecurityConfig {
                         .requestMatchers(USER_ENDPOINTS).authenticated()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        return http.build();
-    }
-
-    @Bean
-    @Order(2)
-    public SecurityFilterChain openApiSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .securityMatcher(PUBLIC_ENDPOINTS)
-                .authorizeHttpRequests(registry -> registry
-                        .anyRequest().permitAll())
-                .csrf(AbstractHttpConfigurer::disable);
         return http.build();
     }
 }

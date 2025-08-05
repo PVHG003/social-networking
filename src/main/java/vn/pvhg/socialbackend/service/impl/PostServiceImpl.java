@@ -5,8 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,9 +17,9 @@ import vn.pvhg.socialbackend.model.post.Post;
 import vn.pvhg.socialbackend.model.post.PostMedia;
 import vn.pvhg.socialbackend.repository.PostMediaRepository;
 import vn.pvhg.socialbackend.repository.PostRepository;
-import vn.pvhg.socialbackend.security.UserDetailsImpl;
 import vn.pvhg.socialbackend.security.UserDetailsServiceImpl;
 import vn.pvhg.socialbackend.service.PostService;
+import vn.pvhg.socialbackend.utils.AuthUserUtils;
 import vn.pvhg.socialbackend.utils.FileUploadUtils;
 
 import java.awt.*;
@@ -39,34 +38,25 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final PostMediaRepository postMediaRepository;
     private final PostMapper postMapper;
+    private final AuthUserUtils authUserUtils;
 
     @Transactional
     @Override
-    public PostResponse createPost(PostRequest requestForm) {
-        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
-        User user = userDetails.getUser();
+    public PostResponse createPost(PostRequest requestForm, List<MultipartFile> files) {
+        User user = authUserUtils.getCurrentUser();
 
         Post post = new Post();
         post.setUser(user);
         post.setContent(requestForm.content());
         post.setPostMedias(new ArrayList<>());
-        postRepository.save(post);
+        post = postRepository.save(post);
+        post.setPostMedias(uploadMedias(post, files));
         return postMapper.toResponse(post);
     }
 
-    @Transactional
-    @Override
-    public PostResponse uploadMedias(UUID postId, List<MultipartFile> files) {
-        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
-        User user = userDetails.getUser();
-
-        Path userPostsPath = Path.of("users", user.getId().toString(), "posts", postId.toString());
+    private List<PostMedia> uploadMedias(Post post, List<MultipartFile> files) {
+        Path userPostsPath = Path.of("users", post.getUser().getId().toString(), "posts", post.getId().toString());
         List<String> uploadedPaths = fileUploadUtils.storeFiles(userPostsPath, files);
-
-        Post post = postRepository.findPostWithMediasById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Post not found with id " + postId));
 
         List<PostMedia> postMediaList = new ArrayList<>();
         int position = 0;
@@ -91,7 +81,7 @@ public class PostServiceImpl implements PostService {
         }
         postMediaRepository.saveAll(postMediaList);
 
-        return postMapper.toResponse(post);
+        return postMediaList;
     }
 
     @Override
@@ -115,9 +105,15 @@ public class PostServiceImpl implements PostService {
 
     @Transactional
     @Override
-    public void deletePost(UUID id) {
-        Post post = postRepository.findPostWithMediasById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Post not found with id " + id));
+    public void deletePost(UUID postId) {
+        User user = authUserUtils.getCurrentUser();
+
+        if (postRepository.existsByIdAndUser(postId, user)) {
+            throw new AuthorizationDeniedException("You are not allowed to update this post");
+        }
+
+        Post post = postRepository.findPostWithMediasById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found with id " + postId));
         List<PostMedia> postMedia = post.getPostMedias();
         for (PostMedia media : postMedia) {
             try {
@@ -127,6 +123,22 @@ public class PostServiceImpl implements PostService {
                 log.error("Failed to delete media file: {}", media.getStoragePath(), e);
             }
         }
-        postRepository.deleteById(id);
+        postRepository.deleteById(postId);
+    }
+
+    @Override
+    public PostResponse updatePost(UUID postId, PostRequest req) {
+        User user = authUserUtils.getCurrentUser();
+
+        if (postRepository.existsByIdAndUser(postId, user)) {
+            throw new AuthorizationDeniedException("You are not allowed to update this post");
+        }
+
+        Post post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("Post not found with id " + postId));
+        if (req.content() != null) {
+            post.setContent(req.content());
+        }
+        postRepository.save(post);
+        return postMapper.toResponse(post);
     }
 }

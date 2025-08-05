@@ -7,8 +7,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.stereotype.Service;
 import vn.pvhg.socialbackend.dto.request.LoginRequest;
 import vn.pvhg.socialbackend.dto.request.RegisterRequest;
@@ -18,7 +16,6 @@ import vn.pvhg.socialbackend.model.authentication.RevokedToken;
 import vn.pvhg.socialbackend.model.authentication.User;
 import vn.pvhg.socialbackend.repository.RevokedTokenRepository;
 import vn.pvhg.socialbackend.repository.UserRepository;
-import vn.pvhg.socialbackend.security.UserDetailsServiceImpl;
 import vn.pvhg.socialbackend.service.AuthenticationService;
 import vn.pvhg.socialbackend.utils.JwtUtils;
 
@@ -27,12 +24,9 @@ import vn.pvhg.socialbackend.utils.JwtUtils;
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
     private final AuthenticationProvider authenticationProvider;
-    private final JwtEncoder jwtEncoder;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final RevokedTokenRepository revokedTokenRepository;
-    private final JwtDecoder jwtDecoder;
-    private final UserDetailsServiceImpl userDetailsServiceImpl;
 
     @Override
     public void register(RegisterRequest requestForm) {

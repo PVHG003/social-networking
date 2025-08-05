@@ -2,22 +2,15 @@ package vn.pvhg.socialbackend.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import vn.pvhg.socialbackend.dto.request.FollowRequest;
-import vn.pvhg.socialbackend.dto.response.FollowResponse;
-
-import java.util.UUID;
+import vn.pvhg.socialbackend.dto.response.UserProfileResponse;
 
 public interface FollowService {
 
-    void followUser(FollowRequest request);
+    void followUser(String handleName);
 
-    Page<FollowResponse> getFollowings(Pageable pageable);
+    void unfollowUser(String handleName);
 
-    Page<FollowResponse> getFollowers(Pageable pageable);
+    Page<UserProfileResponse> getFollowers(String handleName, Pageable pageable);
 
-    void unfollowUser(UUID followId);
-
-    Page<FollowResponse> getUserFollowers(UUID userId, Pageable pageable);
-
-    Page<FollowResponse> getUserFollowings(UUID userId, Pageable pageable);
+    Page<UserProfileResponse> getFollowings(String handleName, Pageable pageable);
 }

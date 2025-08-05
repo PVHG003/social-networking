@@ -4,7 +4,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 import vn.pvhg.socialbackend.dto.request.LoginRequest;
 import vn.pvhg.socialbackend.dto.request.RegisterRequest;
@@ -17,7 +20,7 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-public class AuthenticationController {
+public class AuthController {
 
     private final AuthenticationService authenticationService;
 
@@ -29,13 +32,6 @@ public class AuthenticationController {
         ApiResponse<Void> response = new ApiResponse<>(HttpStatus.CREATED, true, "User registered successfully", null);
         URI uri = uriComponentsBuilder.path("/api/auth/login").build().toUri();
         return ResponseEntity.created(uri).body(response);
-    }
-
-    @PostMapping("/verify")
-    public ResponseEntity<Object> verify(@RequestParam String email) {
-        authenticationService.verify(email);
-        ApiResponse<Void> response = new ApiResponse<>(HttpStatus.CREATED, true, "User verified successfully", null);
-        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")

@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import vn.pvhg.socialbackend.model.authentication.User;
 import vn.pvhg.socialbackend.model.enums.Gender;
 
+import java.text.Normalizer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -32,6 +33,9 @@ public class UserProfile {
     @Column(nullable = false)
     private String displayName;
 
+    @Column(nullable = false, unique = true)
+    private String handleName;
+
     @Column(columnDefinition = "TEXT")
     private String bio;
 
@@ -43,8 +47,8 @@ public class UserProfile {
     @Column(name = "website_url")
     private String websiteUrl;
 
-    @Column(name = "birthdate")
-    private LocalDate birthdate;
+    @Column(name = "birthday")
+    private LocalDate birthday;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;
@@ -55,4 +59,17 @@ public class UserProfile {
 
     @UpdateTimestamp
     private Instant updatedAt;
+
+    @PrePersist
+    @PreUpdate
+    private void prePersist() {
+        String normalized = Normalizer.normalize(displayName, Normalizer.Form.NFD)
+                .replaceAll("[^\\p{ASCII}]", "")      // remove accents
+                .replaceAll("[^a-zA-Z0-9]", "")       // remove non-alphanumeric
+                .toLowerCase();
+
+        String randomSuffix = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+
+        this.handleName = normalized + randomSuffix;
+    }
 }

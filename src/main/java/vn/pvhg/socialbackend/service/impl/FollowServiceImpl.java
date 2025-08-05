@@ -6,21 +6,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-import vn.pvhg.socialbackend.dto.request.FollowRequest;
-import vn.pvhg.socialbackend.dto.response.FollowResponse;
+import vn.pvhg.socialbackend.dto.response.UserProfileResponse;
 import vn.pvhg.socialbackend.mapper.FollowMapper;
 import vn.pvhg.socialbackend.model.authentication.User;
 import vn.pvhg.socialbackend.model.friend.Follow;
 import vn.pvhg.socialbackend.repository.FollowRepository;
 import vn.pvhg.socialbackend.repository.UserRepository;
-import vn.pvhg.socialbackend.security.UserDetailsImpl;
 import vn.pvhg.socialbackend.security.UserDetailsServiceImpl;
 import vn.pvhg.socialbackend.service.FollowService;
-
-import java.util.UUID;
+import vn.pvhg.socialbackend.utils.AuthUserUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -29,15 +24,14 @@ public class FollowServiceImpl implements FollowService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
     private final FollowMapper followMapper;
+    private final AuthUserUtils authUserUtils;
 
     @Transactional
     @Override
-    public void followUser(FollowRequest request) {
-        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
-        User currentUser = userDetails.getUser();
-        User userToFollow = userRepository.findById(request.userId())
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + request.userId()));
+    public void followUser(String handleName) {
+        User currentUser = authUserUtils.getCurrentUser();
+        User userToFollow = userRepository.findByProfileHandleName(handleName)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with handle name: " + handleName));
 
         if (currentUser.getId().equals(userToFollow.getId())) {
             throw new IllegalStateException("User cannot follow themselves");
@@ -54,32 +48,28 @@ public class FollowServiceImpl implements FollowService {
     }
 
     @Override
-    public Page<FollowResponse> getFollowings(Pageable pageable) {
-        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
-        User currentUser = userDetails.getUser();
+    public Page<UserProfileResponse> getFollowings(String handleName, Pageable pageable) {
+        User user = userRepository.findByProfileHandleName(handleName)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with handle name: " + handleName));
 
-        Page<Follow> followings = followRepository.findAllByFollowing(currentUser, pageable);
-        return followings.map(followMapper::toResponse);
+        Page<Follow> followings = followRepository.findAllByFollowing(user, pageable);
+        return followings.map(followMapper::toFollowingResponse);
     }
 
     @Override
-    public Page<FollowResponse> getFollowers(Pageable pageable) {
-        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
-        User currentUser = userDetails.getUser();
+    public Page<UserProfileResponse> getFollowers(String handleName, Pageable pageable) {
+        User user = userRepository.findByProfileHandleName(handleName)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with handle name: " + handleName));
 
-        Page<Follow> followers = followRepository.findAllByFollowed(currentUser, pageable);
-        return followers.map(followMapper::toResponse);
+        Page<Follow> followers = followRepository.findAllByFollowed(user, pageable);
+        return followers.map(followMapper::toFollowedResponse);
     }
 
     @Override
-    public void unfollowUser(UUID userId) {
-        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
-        User currentUser = userDetails.getUser();
-        User userToUnfollow = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+    public void unfollowUser(String handleName) {
+        User currentUser = authUserUtils.getCurrentUser();
+        User userToUnfollow = userRepository.findByProfileHandleName(handleName)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + handleName));
 
         Follow follow = followRepository.findByFollowingAndFollowed(currentUser, userToUnfollow)
                 .orElseThrow(() -> new EntityNotFoundException("Follow relationship not found"));
@@ -89,21 +79,5 @@ public class FollowServiceImpl implements FollowService {
         }
 
         followRepository.deleteById(follow.getId());
-    }
-
-    @Override
-    public Page<FollowResponse> getUserFollowers(UUID userId, Pageable pageable) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
-        Page<Follow> followers = followRepository.findAllByFollowed(user, pageable);
-        return followers.map(followMapper::toResponse);
-    }
-
-    @Override
-    public Page<FollowResponse> getUserFollowings(UUID userId, Pageable pageable) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
-        Page<Follow> followers = followRepository.findAllByFollowing(user, pageable);
-        return followers.map(followMapper::toResponse);
     }
 }

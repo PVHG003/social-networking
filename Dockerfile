@@ -89,4 +89,4 @@ COPY --from=extract build/target/extracted/application/ ./
 
 EXPOSE 8080
 
-ENTRYPOINT [ "java", "-Dspring.profiles.active=docker", "org.springframework.boot.loader.launch.JarLauncher" ]
+ENTRYPOINT [ "java", "org.springframework.boot.loader.launch.JarLauncher" ]

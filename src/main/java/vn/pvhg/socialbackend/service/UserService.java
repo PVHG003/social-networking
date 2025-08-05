@@ -4,10 +4,9 @@ import org.springframework.web.multipart.MultipartFile;
 import vn.pvhg.socialbackend.dto.request.ProfileRequest;
 import vn.pvhg.socialbackend.dto.response.ProfileResponse;
 
-public interface ProfileService {
-    ProfileResponse getProfile();
+public interface UserService {
 
-    ProfileResponse updateProfile(ProfileRequest requestForm);
+    ProfileResponse getUserProfile(String handleName);
 
-    ProfileResponse uploadProfileImage(MultipartFile file);
+    ProfileResponse updateProfile(ProfileRequest profileRequest, MultipartFile file);
 }
