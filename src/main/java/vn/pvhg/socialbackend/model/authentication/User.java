@@ -36,7 +36,7 @@ public class User {
     @Column(nullable = false)
     private String role;
 
-    private boolean enabled = false;
+    private boolean enabled = true;
     private boolean accountNonExpired = true;
     private boolean accountNonLocked = true;
     private boolean credentialsNonExpired = true;

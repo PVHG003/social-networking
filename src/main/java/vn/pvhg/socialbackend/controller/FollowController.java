@@ -20,16 +20,16 @@ public class FollowController {
     private final FollowService followService;
 
     @PostMapping("/follow")
-    public ResponseEntity<Object> follow(@PathVariable String handleName) {
+    public ResponseEntity<ApiResponse<Void>> follow(@PathVariable String handleName) {
         followService.followUser(handleName);
-        ApiResponse<Object> response = new ApiResponse<>(HttpStatus.OK, true, "User followed", null);
+        ApiResponse<Void> response = new ApiResponse<>(HttpStatus.OK, true, "User followed", null);
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/unfollow")
-    public ResponseEntity<Object> unfollow(@PathVariable String handleName) {
+    public ResponseEntity<ApiResponse<Void>> unfollow(@PathVariable String handleName) {
         followService.unfollowUser(handleName);
-        ApiResponse<Object> response = new ApiResponse<>(HttpStatus.OK, true, "User unfollowed", null);
+        ApiResponse<Void> response = new ApiResponse<>(HttpStatus.OK, true, "User unfollowed", null);
         return ResponseEntity.ok(response);
     }
 
@@ -54,7 +54,7 @@ public class FollowController {
     }
 
     @GetMapping("/followings")
-    public ResponseEntity<Object> followings(
+    public ResponseEntity<ApiPagedResponse<UserProfileResponse>> followings(
             @PathVariable String handleName,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size

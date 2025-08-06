@@ -12,11 +12,11 @@ import vn.pvhg.socialbackend.dto.request.LoginRequest;
 import vn.pvhg.socialbackend.dto.request.RegisterRequest;
 import vn.pvhg.socialbackend.dto.response.LoginResponse;
 import vn.pvhg.socialbackend.exception.EmailAlreadyExistsException;
-import vn.pvhg.socialbackend.model.authentication.RevokedToken;
 import vn.pvhg.socialbackend.model.authentication.User;
 import vn.pvhg.socialbackend.repository.RevokedTokenRepository;
 import vn.pvhg.socialbackend.repository.UserRepository;
 import vn.pvhg.socialbackend.service.AuthenticationService;
+import vn.pvhg.socialbackend.service.TokenRevocationService;
 import vn.pvhg.socialbackend.utils.JwtUtils;
 
 @Service
@@ -27,6 +27,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final RevokedTokenRepository revokedTokenRepository;
+    private final TokenRevocationService tokenRevocationService;
 
     @Override
     public void register(RegisterRequest requestForm) {
@@ -65,9 +66,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public void logout() {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        RevokedToken revokedToken = new RevokedToken();
-        revokedToken.setTokenId(jwt.getId());
-        revokedToken.setExpiryDate(jwt.getExpiresAt());
-        revokedTokenRepository.save(revokedToken);
+        tokenRevocationService.revokeToken(jwt.getTokenValue(), jwt.getExpiresAt());
     }
 }

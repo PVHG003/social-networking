@@ -17,7 +17,13 @@ public class AuthUserUtils {
     public User getCurrentUser() {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserDetailsImpl userDetails = (UserDetailsImpl) userDetailsServiceImpl.loadUserByUsername(jwt.getSubject());
-        return userDetails.getUser();
+        User user = userDetails.getUser();
+
+        if (user == null) {
+            throw new IllegalArgumentException("User not found");
+        }
+
+        return user;
     }
 
 }

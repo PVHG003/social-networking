@@ -25,7 +25,7 @@ public class AuthController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ResponseEntity<Object> register(
+    public ResponseEntity<ApiResponse<Void>> register(
             UriComponentsBuilder uriComponentsBuilder,
             @Valid @RequestBody RegisterRequest requestForm) {
         authenticationService.register(requestForm);
@@ -35,14 +35,14 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody LoginRequest requestForm) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest requestForm) {
         LoginResponse loginResponse = authenticationService.login(requestForm);
         ApiResponse<LoginResponse> response = new ApiResponse<>(HttpStatus.CREATED, true, "User logged in successfully", loginResponse);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Object> logout() {
+    public ResponseEntity<ApiResponse<Void>> logout() {
         authenticationService.logout();
         ApiResponse<Void> response = new ApiResponse<>(HttpStatus.OK, true, "User logged out", null);
         return ResponseEntity.ok(response);

@@ -26,7 +26,7 @@ public class TokenRevocationServiceImpl implements TokenRevocationService {
         return revokedToken != null;
     }
 
-    @Scheduled(fixedRate = 86400000) // Daily cleanup
+    @Scheduled(fixedRate = 600000) // Daily cleanup
     @Override
     public void cleanupExpiredTokens() {
         revokedTokenRepository.deleteByExpiryDateBefore(Instant.now());

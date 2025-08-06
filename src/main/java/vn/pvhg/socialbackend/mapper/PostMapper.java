@@ -4,6 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import vn.pvhg.socialbackend.dto.response.PostResponse;
+import vn.pvhg.socialbackend.model.interaction.Comment;
+import vn.pvhg.socialbackend.model.interaction.Like;
 import vn.pvhg.socialbackend.model.post.Post;
 import vn.pvhg.socialbackend.model.post.PostMedia;
 
@@ -16,8 +18,25 @@ public interface PostMapper {
 
     @Mapping(source = "user.profile.displayName", target = "username")
     @Mapping(source = "user.profile.profileImage", target = "profilePicture")
-//    @Mapping(source = "postMedias", target = "postMedias", qualifiedByName = "postMediasToStringList")
+    @Mapping(target = "likeCounts", source = "likes", qualifiedByName = "mapLikeCountsToPost")
+    @Mapping(target = "commentCounts", source = "comments", qualifiedByName = "mapCommentCountsToPost")
     PostResponse toResponse(Post post);
+
+    @Named("mapCommentCountsToPost")
+    default int mapCommentCountsToPost(List<Comment> comments) {
+        if (comments == null) {
+            return 0;
+        }
+        return comments.size();
+    }
+
+    @Named("mapLikeCountsToPost")
+    default int mapLikeCountsToPost(List<Like> likes) {
+        if (likes == null || likes.isEmpty()) {
+            return 0;
+        }
+        return likes.size();
+    }
 
     @Named("postMediasToStringList")
     default List<String> postMediasToStringList(List<PostMedia> postMedias) {

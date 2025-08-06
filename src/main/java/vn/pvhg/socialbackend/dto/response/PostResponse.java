@@ -10,7 +10,8 @@ public record PostResponse(
         String profilePicture,
         String content,
         List<PostMediaResponse> postMedias,
-//        List<String> postMedias,
+        int likeCounts,
+        int commentCounts,
         Instant createdAt,
         Instant updatedAt
 ) {

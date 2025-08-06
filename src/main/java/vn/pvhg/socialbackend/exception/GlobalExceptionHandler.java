@@ -24,7 +24,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 
-
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex, WebRequest request) {
         List<String> errors = ex.getConstraintViolations().stream()
@@ -56,8 +55,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleAll(Exception ex, WebRequest request) {
-        String error = "Unexpected server error";
-        ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, error, List.of("An unexpected error occurred."));
+        String error = ex.getMessage();
+        ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, error, List.of("An unexpected error occurred.", request.getDescription(false)));
         return new ResponseEntity<>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 }

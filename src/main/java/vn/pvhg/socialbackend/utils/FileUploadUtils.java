@@ -1,6 +1,7 @@
 package vn.pvhg.socialbackend.utils;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class FileUploadUtils {
@@ -199,9 +201,10 @@ public class FileUploadUtils {
     public void deleteDirectory(String storagePath) throws FileNotFoundException {
         try {
             Path absolutePath = Paths.get(BASE_STORAGE_PATH).resolve(storagePath).getParent().normalize();
+            log.info("Delete directory {}", absolutePath);
             Files.deleteIfExists(absolutePath);
         } catch (IOException e) {
-            throw new FileNotFoundException("Could not read file: " + storagePath);
+            throw new RuntimeException("Could not read file: " + storagePath);
         }
     }
 }

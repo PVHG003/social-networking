@@ -70,7 +70,7 @@ public class PostController {
 
     @GetMapping("/explore")
     public ResponseEntity<ApiPagedResponse<PostResponse>> explore(
-            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -80,8 +80,8 @@ public class PostController {
                 true,
                 "Posts found",
                 posts.getContent(),
-                posts.getNumber(),
-                posts.getNumberOfElements(),
+                posts.getPageable().getPageNumber(),
+                posts.getPageable().getPageSize(),
                 posts.getTotalElements(),
                 posts.getTotalPages());
         return ResponseEntity.ok(response);

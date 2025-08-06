@@ -15,9 +15,7 @@ public interface PostService {
     Page<PostResponse> getAllPosts(Pageable pageable);
 
     PostResponse getPostById(UUID id);
-
-    Page<PostResponse> getUserPosts(UUID userId, Pageable pageable);
-
+    
     void deletePost(UUID id);
 
     PostResponse updatePost(UUID postId, PostRequest req);

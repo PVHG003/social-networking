@@ -52,12 +52,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = header.substring("Bearer ".length());
             Jwt jwt = jwtDecoder.decode(token);
 
-            if (tokenRevocationService.isTokenRevoked(token)) {
-                throw new BadCredentialsException("Token has been revoked");
-            }
-
             if (jwt == null) {
                 throw new BadCredentialsException("Invalid token");
+            }
+
+            if (tokenRevocationService.isTokenRevoked(token)) {
+                throw new BadCredentialsException("Token has been revoked");
             }
 
             Instant expiresAt = jwt.getExpiresAt();

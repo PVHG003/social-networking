@@ -17,7 +17,6 @@ import vn.pvhg.socialbackend.model.post.Post;
 import vn.pvhg.socialbackend.model.post.PostMedia;
 import vn.pvhg.socialbackend.repository.PostMediaRepository;
 import vn.pvhg.socialbackend.repository.PostRepository;
-import vn.pvhg.socialbackend.security.UserDetailsServiceImpl;
 import vn.pvhg.socialbackend.service.PostService;
 import vn.pvhg.socialbackend.utils.AuthUserUtils;
 import vn.pvhg.socialbackend.utils.FileUploadUtils;
@@ -34,7 +33,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PostServiceImpl implements PostService {
     private final FileUploadUtils fileUploadUtils;
-    private final UserDetailsServiceImpl userDetailsServiceImpl;
     private final PostRepository postRepository;
     private final PostMediaRepository postMediaRepository;
     private final PostMapper postMapper;
@@ -50,6 +48,10 @@ public class PostServiceImpl implements PostService {
         post.setContent(requestForm.content());
         post.setPostMedias(new ArrayList<>());
         post = postRepository.save(post);
+
+        if (files == null || files.isEmpty()) {
+            return postMapper.toResponse(post);
+        }
         post.setPostMedias(uploadMedias(post, files));
         return postMapper.toResponse(post);
     }
@@ -86,21 +88,15 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Page<PostResponse> getAllPosts(Pageable pageable) {
-        Page<Post> posts = postRepository.findAllPostsWithMedias(pageable);
+        Page<Post> posts = postRepository.findAll(pageable);
         return posts.map(postMapper::toResponse);
     }
 
     @Override
     public PostResponse getPostById(UUID id) {
-        Post post = postRepository.findPostWithMediasById(id)
+        Post post = postRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found with id " + id));
         return postMapper.toResponse(post);
-    }
-
-    @Override
-    public Page<PostResponse> getUserPosts(UUID userId, Pageable pageable) {
-        Page<Post> posts = postRepository.findPostsWithMediasByUserId(userId, pageable);
-        return posts.map(postMapper::toResponse);
     }
 
     @Transactional
@@ -108,19 +104,21 @@ public class PostServiceImpl implements PostService {
     public void deletePost(UUID postId) {
         User user = authUserUtils.getCurrentUser();
 
-        if (postRepository.existsByIdAndUser(postId, user)) {
+        if (!postRepository.existsByIdAndUser(postId, user)) {
             throw new AuthorizationDeniedException("You are not allowed to update this post");
         }
 
-        Post post = postRepository.findPostWithMediasById(postId)
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found with id " + postId));
         List<PostMedia> postMedia = post.getPostMedias();
         for (PostMedia media : postMedia) {
             try {
-                fileUploadUtils.deleteDirectory(media.getStoragePath());
-                fileUploadUtils.deleteFile(media.getStoragePath());
+                String path = media.getStoragePath();
+                log.info("Delete post media with path {}", path);
+                fileUploadUtils.deleteFile(path);
+                fileUploadUtils.deleteDirectory(path);
             } catch (FileNotFoundException e) {
-                log.error("Failed to delete media file: {}", media.getStoragePath(), e);
+                log.error("Failed to delete media file: {} {}", media.getStoragePath(), e.getMessage());
             }
         }
         postRepository.deleteById(postId);
