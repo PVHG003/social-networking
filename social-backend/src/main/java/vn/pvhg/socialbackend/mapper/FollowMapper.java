@@ -13,6 +13,7 @@ public interface FollowMapper {
     @Mapping(target = "displayName", source = "followed.profile.displayName")
     @Mapping(target = "gender", source = "followed.profile.gender")
     @Mapping(target = "profileImage", source = "followed.profile.profileImage")
+    @Mapping(target = "bio", source = "followed.profile.bio")
     UserProfileResponse toFollowedResponse(Follow follow);
 
 
@@ -21,5 +22,6 @@ public interface FollowMapper {
     @Mapping(target = "displayName", source = "following.profile.displayName")
     @Mapping(target = "gender", source = "following.profile.gender")
     @Mapping(target = "profileImage", source = "following.profile.profileImage")
+    @Mapping(target = "bio", source = "following.profile.bio")
     UserProfileResponse toFollowingResponse(Follow follow);
 }
