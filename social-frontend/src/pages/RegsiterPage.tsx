@@ -1,9 +1,19 @@
+import authApi from "@/api/authApi";
 import AuthForm from "@/components/AuthForm";
+import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
-  const handleRegister= (data: { email: string; password: string, confirmPassword?: string }) => {
-    console.log("Login:", data);
-    // Add your login logic here (e.g., API call)
+  const navigate = useNavigate();
+
+  const handleRegister = async (data: {
+    email: string;
+    password: string;
+    confirmPassword?: string;
+  }) => {
+    const response = await authApi.register(data);
+    if (response.success === true) {
+      navigate("/complete-profile");
+    }
   };
 
   return <AuthForm type="register" onSubmit={handleRegister} />;

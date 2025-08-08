@@ -1,9 +1,16 @@
+import authApi from "@/api/authApi";
 import AuthForm from "@/components/AuthForm";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
-  const handleLogin = (data: { email: string; password: string }) => {
-    console.log("Login:", data);
-    // Add your login logic here (e.g., API call)
+  const navigate = useNavigate();
+  const handleLogin = async (data: { email: string; password: string }) => {
+    const response = await authApi.login(data);
+    if (response.success === true) {
+      console.log("Login successful with token:", response.data.accessToken);
+      localStorage.setItem("token", response.data.accessToken);
+      navigate("/");
+    }
   };
 
   return <AuthForm type="login" onSubmit={handleLogin} />;

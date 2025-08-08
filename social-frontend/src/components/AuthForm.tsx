@@ -13,13 +13,15 @@ interface AuthFormProps {
   }) => void;
 }
 
-// Reusable AuthForm component for login and registration
 const AuthForm = ({ type, onSubmit }: AuthFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
+
     const formData = new FormData(e.currentTarget);
     const data = {
       email: formData.get("email") as string,
@@ -28,8 +30,15 @@ const AuthForm = ({ type, onSubmit }: AuthFormProps) => {
         confirmPassword: formData.get("confirmPassword") as string,
       }),
     };
-    onSubmit(data);
-    setIsLoading(false);
+
+    try {
+      onSubmit(data);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setError("Login failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -66,10 +75,11 @@ const AuthForm = ({ type, onSubmit }: AuthFormProps) => {
           />
         </div>
       )}
+      {error && <p className="text-red-500">{error}</p>}
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? "Submitting..." : type === "login" ? "Log In" : "Register"}
       </Button>
-      {type === 'login' ? (
+      {type === "login" ? (
         <Link to={"/register"}>Create an account</Link>
       ) : (
         <Link to={"/login"}>Sign in</Link>
