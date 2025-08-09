@@ -2,8 +2,6 @@ package vn.pvhg.socialbackend.utils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import vn.pvhg.socialbackend.exception.FileStorageException;
@@ -22,6 +20,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -41,28 +40,11 @@ public class FileUploadUtils {
             "video/mp4", "video/mpeg", "video/webm", "video/quicktime"
     );
 
-    private final ResourceLoader resourceLoader;
-
     public void deleteFile(String filePath) throws FileNotFoundException {
         try {
             Path absolutePath = Paths.get(BASE_STORAGE_PATH).resolve(filePath).normalize();
             Files.deleteIfExists(absolutePath);
         } catch (IOException e) {
-            throw new FileNotFoundException("Could not read file: " + filePath);
-        }
-    }
-
-    public Resource loadFileAsResource(String filePath) throws FileNotFoundException {
-        try {
-            Path absolutePath = Paths.get(BASE_STORAGE_PATH).resolve(filePath).normalize();
-            Resource resource = resourceLoader.getResource("file:" + absolutePath);
-
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            } else {
-                throw new FileNotFoundException("File not found: " + filePath);
-            }
-        } catch (FileNotFoundException e) {
             throw new FileNotFoundException("Could not read file: " + filePath);
         }
     }
@@ -84,7 +66,7 @@ public class FileUploadUtils {
     private String storeFile(Path relativePath, MultipartFile file) throws IOException {
         validateFile(file);
         Path absolutePath = createDirectories(relativePath);
-        String filename = generateFilename(file.getOriginalFilename());
+        String filename = generateFilename(Objects.requireNonNull(file.getOriginalFilename()));
         Path targetLocation = absolutePath.resolve(filename);
 
         Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);

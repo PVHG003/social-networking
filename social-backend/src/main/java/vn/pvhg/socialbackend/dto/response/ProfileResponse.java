@@ -17,7 +17,6 @@ public record ProfileResponse(
         String bio,
         String profileImage,
         String location,
-        String websiteUrl,
         LocalDate birthday,
         Gender gender
 ) implements Serializable {

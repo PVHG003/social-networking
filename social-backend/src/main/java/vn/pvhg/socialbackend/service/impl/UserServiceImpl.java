@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
     private final UserProfileRepository userProfileRepository;
     private final PostRepository postRepository;
     private final PostMapper postMapper;
-    
+
     @Override
     public ProfileResponse getUserProfile(String handleName) {
         UserProfile userProfile = userProfileRepository.findByHandleName(handleName);
@@ -54,7 +54,6 @@ public class UserServiceImpl implements UserService {
         userProfile.setDisplayName(request.displayName());
         userProfile.setBio(request.bio());
         userProfile.setLocation(request.location());
-        userProfile.setWebsiteUrl(request.websiteUrl());
         userProfile.setBirthday(request.birthday());
         userProfile.setGender(request.gender());
 

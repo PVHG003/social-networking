@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import vn.pvhg.socialbackend.dto.request.LoginRequest;
 import vn.pvhg.socialbackend.dto.request.RegisterRequest;
 import vn.pvhg.socialbackend.dto.response.LoginResponse;
-import vn.pvhg.socialbackend.exception.EmailAlreadyExistsException;
 import vn.pvhg.socialbackend.model.authentication.User;
 import vn.pvhg.socialbackend.repository.UserRepository;
 import vn.pvhg.socialbackend.service.AuthenticationService;
@@ -30,7 +29,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public LoginResponse register(RegisterRequest requestForm) {
         if (userRepository.findByEmail(requestForm.email()).isPresent()) {
-            throw new EmailAlreadyExistsException("Email already in use: " + requestForm.email());
+            throw new IllegalStateException("Email already in use: " + requestForm.email());
         }
 
         User user = new User();

@@ -44,9 +44,6 @@ public class UserProfile {
     @Column(name = "location")
     private String location;
 
-    @Column(name = "website_url")
-    private String websiteUrl;
-
     @Column(name = "birthday")
     private LocalDate birthday;
 

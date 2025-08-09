@@ -12,7 +12,6 @@ public record ProfileRequest(
         String displayName,
         String bio,
         String location,
-        String websiteUrl,
         LocalDate birthday,
         Gender gender
 ) implements Serializable {
