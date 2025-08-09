@@ -3,7 +3,7 @@ import {
   ChevronUpIcon,
   Home,
   MessageCircle,
-  UserIcon,
+  UserIcon
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -19,11 +19,11 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
+  useSidebar
 } from "@/components/ui/sidebar";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -36,7 +36,7 @@ const items = [
 
 export function AppSidebar() {
   const isMobile = useSidebar();
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   function handleLogout(e: React.MouseEvent<HTMLDivElement>): void {
     throw new Error("Function not implemented.");
@@ -44,18 +44,18 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
+      <SidebarHeader>AppIcon</SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

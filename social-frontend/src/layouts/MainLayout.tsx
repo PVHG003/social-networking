@@ -14,7 +14,6 @@ const MainLayout: FunctionComponent<MainLayoutProps> = () => {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarTrigger />
       <div className="flex flex-col flex-1">
         <Navbar />
 
