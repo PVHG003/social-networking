@@ -5,7 +5,7 @@ import vn.pvhg.socialbackend.dto.request.RegisterRequest;
 import vn.pvhg.socialbackend.dto.response.LoginResponse;
 
 public interface AuthenticationService {
-    void register(RegisterRequest requestForm);
+    LoginResponse register(RegisterRequest requestForm);
 
     void verify(String email);
 

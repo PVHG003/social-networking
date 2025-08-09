@@ -25,19 +25,21 @@ public class AuthController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<Void>> register(
+    public ResponseEntity<ApiResponse<LoginResponse>> register(
             UriComponentsBuilder uriComponentsBuilder,
             @Valid @RequestBody RegisterRequest requestForm) {
-        authenticationService.register(requestForm);
-        ApiResponse<Void> response = new ApiResponse<>(HttpStatus.CREATED, true, "User registered successfully", null);
-        URI uri = uriComponentsBuilder.path("/api/auth/login").build().toUri();
+        LoginResponse login = authenticationService.register(requestForm);
+        ApiResponse<LoginResponse> response = new ApiResponse<>(HttpStatus.CREATED, true,
+                "User registered successfully", login);
+        URI uri = uriComponentsBuilder.path("/api/users/me").build().toUri();
         return ResponseEntity.created(uri).body(response);
     }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest requestForm) {
         LoginResponse loginResponse = authenticationService.login(requestForm);
-        ApiResponse<LoginResponse> response = new ApiResponse<>(HttpStatus.CREATED, true, "User logged in successfully", loginResponse);
+        ApiResponse<LoginResponse> response = new ApiResponse<>(HttpStatus.CREATED, true, "User logged in successfully",
+                loginResponse);
         return ResponseEntity.ok(response);
     }
 

@@ -12,6 +12,7 @@ const RegisterPage = () => {
   }) => {
     const response = await authApi.register(data);
     if (response.success === true) {
+      localStorage.setItem("token", response.data.accessToken);
       navigate("/complete-profile");
     }
   };

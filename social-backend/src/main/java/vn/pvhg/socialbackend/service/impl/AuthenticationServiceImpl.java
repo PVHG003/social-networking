@@ -13,7 +13,6 @@ import vn.pvhg.socialbackend.dto.request.RegisterRequest;
 import vn.pvhg.socialbackend.dto.response.LoginResponse;
 import vn.pvhg.socialbackend.exception.EmailAlreadyExistsException;
 import vn.pvhg.socialbackend.model.authentication.User;
-import vn.pvhg.socialbackend.repository.RevokedTokenRepository;
 import vn.pvhg.socialbackend.repository.UserRepository;
 import vn.pvhg.socialbackend.service.AuthenticationService;
 import vn.pvhg.socialbackend.service.TokenRevocationService;
@@ -26,11 +25,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationProvider authenticationProvider;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
-    private final RevokedTokenRepository revokedTokenRepository;
     private final TokenRevocationService tokenRevocationService;
 
     @Override
-    public void register(RegisterRequest requestForm) {
+    public LoginResponse register(RegisterRequest requestForm) {
         if (userRepository.findByEmail(requestForm.email()).isPresent()) {
             throw new EmailAlreadyExistsException("Email already in use: " + requestForm.email());
         }
@@ -40,6 +38,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder.encode(requestForm.password()));
         user.setRole("USER");
         userRepository.save(user);
+
+        Authentication authentication = authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(
+                requestForm.email(), requestForm.password()));
+
+        String token = jwtUtils.generateToken(authentication);
+        return new LoginResponse(
+                token);
     }
 
     @Override
@@ -53,13 +58,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public LoginResponse login(LoginRequest requestForm) {
         Authentication authentication = authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(
-                requestForm.email(), requestForm.password()
-        ));
+                requestForm.email(), requestForm.password()));
 
         String token = jwtUtils.generateToken(authentication);
         return new LoginResponse(
-                token
-        );
+                token);
     }
 
     @Override

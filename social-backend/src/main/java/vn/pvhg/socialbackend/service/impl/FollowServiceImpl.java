@@ -13,14 +13,12 @@ import vn.pvhg.socialbackend.model.authentication.User;
 import vn.pvhg.socialbackend.model.friend.Follow;
 import vn.pvhg.socialbackend.repository.FollowRepository;
 import vn.pvhg.socialbackend.repository.UserRepository;
-import vn.pvhg.socialbackend.security.UserDetailsServiceImpl;
 import vn.pvhg.socialbackend.service.FollowService;
 import vn.pvhg.socialbackend.utils.AuthUserUtils;
 
 @Service
 @RequiredArgsConstructor
 public class FollowServiceImpl implements FollowService {
-    private final UserDetailsServiceImpl userDetailsServiceImpl;
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
     private final FollowMapper followMapper;

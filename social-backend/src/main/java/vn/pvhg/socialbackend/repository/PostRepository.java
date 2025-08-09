@@ -5,10 +5,13 @@ import org.springframework.stereotype.Repository;
 import vn.pvhg.socialbackend.model.authentication.User;
 import vn.pvhg.socialbackend.model.post.Post;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, UUID> {
 
     boolean existsByIdAndUser(UUID postId, User user);
+
+    List<Post> findPostByUser(User user);
 }

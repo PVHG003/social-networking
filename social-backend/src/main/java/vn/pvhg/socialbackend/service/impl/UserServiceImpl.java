@@ -5,10 +5,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import vn.pvhg.socialbackend.dto.request.ProfileRequest;
+import vn.pvhg.socialbackend.dto.response.PostResponse;
 import vn.pvhg.socialbackend.dto.response.ProfileResponse;
+import vn.pvhg.socialbackend.mapper.PostMapper;
 import vn.pvhg.socialbackend.mapper.ProfileMapper;
 import vn.pvhg.socialbackend.model.UserProfile;
 import vn.pvhg.socialbackend.model.authentication.User;
+import vn.pvhg.socialbackend.model.post.Post;
+import vn.pvhg.socialbackend.repository.PostRepository;
 import vn.pvhg.socialbackend.repository.UserProfileRepository;
 import vn.pvhg.socialbackend.service.UserService;
 import vn.pvhg.socialbackend.utils.AuthUserUtils;
@@ -25,7 +29,9 @@ public class UserServiceImpl implements UserService {
     private final FileUploadUtils fileUploadUtils;
     private final ProfileMapper profileMapper;
     private final UserProfileRepository userProfileRepository;
-
+    private final PostRepository postRepository;
+    private final PostMapper postMapper;
+    
     @Override
     public ProfileResponse getUserProfile(String handleName) {
         UserProfile userProfile = userProfileRepository.findByHandleName(handleName);
@@ -59,5 +65,17 @@ public class UserServiceImpl implements UserService {
         userProfileRepository.save(userProfile);
 
         return profileMapper.toResponse(userProfile);
+    }
+
+    @Override
+    public List<PostResponse> getUserPosts(String handleName) {
+        UserProfile userProfile = userProfileRepository.findByHandleName(handleName);
+        if (userProfile == null) {
+            throw new EntityNotFoundException("User profile not found");
+        }
+        User user = userProfile.getUser();
+        List<Post> posts = postRepository.findPostByUser(user);
+        return posts.stream().map(postMapper::toResponse)
+                .toList();
     }
 }
