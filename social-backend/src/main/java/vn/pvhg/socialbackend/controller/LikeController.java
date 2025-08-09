@@ -23,7 +23,7 @@ public class LikeController {
 
     @GetMapping
     public ResponseEntity<ApiPagedResponse<LikeResponse>> getLikes(@PathVariable UUID postId) {
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("likedAt").descending());
         Page<LikeResponse> likes = likeService.getPostLikes(postId, pageable);
         ApiPagedResponse<LikeResponse> response = new ApiPagedResponse<>(
                 HttpStatus.OK,

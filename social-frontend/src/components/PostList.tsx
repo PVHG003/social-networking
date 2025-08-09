@@ -32,7 +32,7 @@ const PostList = () => {
 
   useEffect(() => {
     fetchPosts();
-  }, [posts]);
+  });
 
   return (
     <div className="space-y-4">

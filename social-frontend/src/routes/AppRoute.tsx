@@ -1,3 +1,4 @@
+import PostDetails from "@/components/PostDetails";
 import PostList from "@/components/PostList";
 import AuthLayout from "@/layouts/AuthLayout";
 import ProfileLayout from "@/layouts/ProfileLayout";
@@ -19,6 +20,7 @@ export const AppRoutes = () => {
       <Route path="/profile/:handleName" element={<ProfileLayout />}>
         <Route index element={<PostList />} />
       </Route>
+      <Route path="/posts/:postId" element={<PostDetails />} />
     </Routes>
   );
 };
