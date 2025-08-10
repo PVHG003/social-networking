@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from "../ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useNavigate } from "react-router-dom";
 import { Heart, MessageCircleMore } from "lucide-react";
+import { Separator } from "../ui/separator";
 
 interface PostCardProps {
   id: string;
@@ -28,7 +29,10 @@ const PostCard: FunctionComponent<PostCardProps> = ({
   const navigate = useNavigate();
 
   return (
-    <Card className="max-w-lvh mx-auto m-4 p-4">
+    <Card
+      className="max-w-lvh mx-auto m-4 p-4 cursor-pointer hover:shadow-lg transition"
+      onClick={() => navigate(`/posts/${id}`)}
+    >
       {/* Header */}
       <CardHeader className="flex flex-row items-center gap-3">
         <Avatar>
@@ -85,15 +89,18 @@ const PostCard: FunctionComponent<PostCardProps> = ({
         )}
       </CardContent>
 
-      <div className="flex gap-3 px-2 pb-2 text-gray-600">
-        <div className="flex items-center gap-2  cursor-pointer hover:shadow-lg transition">
-          <Heart size={16} />
-          <span>{likeCounts.toLocaleString()}</span>
+      <div className="flex justify-evenly gap-3 px-2 pb-2 text-gray-600">
+        <div className="flex items-center gap-2">
+          <Heart
+            size={30}
+            color="red"
+            className="fill-red-500 outline-red-500"
+          />
+          <span className="text-xl">{likeCounts.toLocaleString()}</span>
         </div>
-        <div
-          className="flex items-center gap-2 cursor-pointer"        >
-          <MessageCircleMore size={16} />
-          <span>{commentCounts.toLocaleString()}</span>
+        <div className="flex items-center gap-2">
+          <MessageCircleMore size={30} />
+          <span className="text-xl">{commentCounts.toLocaleString()}</span>
         </div>
       </div>
     </Card>
