@@ -1,7 +1,9 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import type { FunctionComponent } from "react";
 import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "../ui/button";
 import {
   Form,
   FormControl,
@@ -12,8 +14,6 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { Link } from "react-router-dom";
 
 interface AuthFormProps {
   type: "login" | "register";
@@ -41,6 +41,8 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const AuthForm: FunctionComponent<AuthFormProps> = ({ type }) => {
+  const navigate = useNavigate();
+
   const schema = type === "login" ? loginSchema : registerSchema;
 
   const form = useForm<LoginFormValues | RegisterFormValues>({
@@ -51,13 +53,26 @@ const AuthForm: FunctionComponent<AuthFormProps> = ({ type }) => {
         : { email: "", password: "", confirmPassword: "" },
   });
 
-  function handleSubmit(values: LoginFormValues | RegisterFormValues) {
+  const handleLogin = (values: LoginFormValues) => {
     console.log("Form submitted:", values);
-  }
+    navigate("/");
+  };
+
+  const handleRegister = (values: LoginFormValues) => {
+    console.log("Form submitted:", values);
+    navigate("/");
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form
+        onSubmit={
+          type === "login"
+            ? form.handleSubmit(handleLogin)
+            : form.handleSubmit(handleRegister)
+        }
+        className="space-y-4"
+      >
         {/* Email */}
         <FormField
           control={form.control}

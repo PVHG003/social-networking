@@ -1,9 +1,10 @@
 import {
   ChevronDownIcon,
   ChevronUpIcon,
+  Heart,
   Home,
-  MessageCircle,
-  UserIcon
+  MessagesSquare,
+  UserIcon,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,22 +24,26 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const items = [
   { title: "Home", url: "/", icon: Home },
+  { title: "Feed", url: "/feed", icon: Heart },
   { title: "Profile", url: "/profile/me", icon: UserIcon },
-  { title: "Chat", url: "/chat", icon: MessageCircle },
+  { title: "Chat", url: "/chat", icon: MessagesSquare },
 ];
 
 export function AppSidebar() {
   const isMobile = useSidebar();
   const [isOpen, setIsOpen] = useState(true);
+  const navigate = useNavigate();
 
-  function handleLogout(e: React.MouseEvent<HTMLDivElement>): void {
+  function handleLogout(): void {
+    console.log("User logged out");
+    navigate("/login");
     throw new Error("Function not implemented.");
   }
 
